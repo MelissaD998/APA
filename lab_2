@@ -1,0 +1,271 @@
+#include <iostream>
+#include <time.h>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+
+int partition(int arr[], int low, int high)
+{
+
+    int pivot = arr[high];
+
+    int i = (low - 1);
+    for (int j = low; j <= high - 1; j++)
+    {
+
+        if (arr[j] <= pivot) {
+
+
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+
+int partition_r(int arr[], int low, int high)
+{
+
+    srand(time(NULL));
+    int random = low + rand() % (high - low);
+
+
+    swap(arr[random], arr[high]);
+
+    return partition(arr, low, high);
+}
+
+
+void quickSort(int arr[], int low, int high)
+{
+    if (low < high) {
+
+
+        int pi = partition_r(arr, low, high);
+
+
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+
+void merge(int array[], int const left, int const mid, int const right)
+{
+    auto const subArrayOne = mid - left + 1;
+    auto const subArrayTwo = right - mid;
+
+
+    auto *leftArray = new int[subArrayOne],
+         *rightArray = new int[subArrayTwo];
+
+
+    for (auto i = 0; i < subArrayOne; i++)
+        leftArray[i] = array[left + i];
+    for (auto j = 0; j < subArrayTwo; j++)
+        rightArray[j] = array[mid + 1 + j];
+
+    auto indexOfSubArrayOne = 0, // Initial index of first sub-array
+        indexOfSubArrayTwo = 0; // Initial index of second sub-array
+    int indexOfMergedArray = left; // Initial index of merged array
+
+
+    while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
+        if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
+            array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+            indexOfSubArrayOne++;
+        }
+        else {
+            array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+            indexOfSubArrayTwo++;
+        }
+        indexOfMergedArray++;
+    }
+
+    while (indexOfSubArrayOne < subArrayOne) {
+        array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+        indexOfSubArrayOne++;
+        indexOfMergedArray++;
+    }
+
+    while (indexOfSubArrayTwo < subArrayTwo) {
+        array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+        indexOfSubArrayTwo++;
+        indexOfMergedArray++;
+    }
+}
+
+
+void mergeSort(int array[], int const begin, int const end)
+{
+    if (begin >= end)
+        return; // Returns recursively
+
+    auto mid = begin + (end - begin) / 2;
+    mergeSort(array, begin, mid);
+    mergeSort(array, mid + 1, end);
+    merge(array, begin, mid, end);
+}
+
+
+
+void swapping(int &a, int &b) {         //swap the content of a and b
+   int temp;
+   temp = a;
+   a = b;
+   b = temp;
+}
+
+void selectionSort(int *array, int size) {
+   int i, j, imin;
+   for(i = 0; i<size-1; i++) {
+      imin = i;
+      for(j = i+1; j<size; j++)
+         if(array[j] < array[imin])
+            imin = j;
+
+         swap(array[i], array[imin]);
+   }
+}
+
+    void printArray(int arr[], int size){
+    int i;
+    for (i = 0; i < size; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+}
+
+
+int main()
+{
+
+srand(time(NULL));
+
+    int arr_size;
+
+    cout << "Numărul de elemente: ";
+    cin >> arr_size;
+
+    // 10, 100, 1.000, 10.000, 100.000, 1.000.000, 10.000.000
+
+    int *mergeArr = new int[arr_size];
+    int *quickArr = new int[arr_size];
+    int *selectionArr = new int[arr_size];
+
+
+//tablou deja sortat
+        //for (int i = 0; i < arr_size; i++) {
+         // mergeArr[i] = quickArr[i] = selectionArr[i] = i;
+       //}
+////
+//
+//      tablou sortat descrescator
+        for (int i = 0; i < arr_size; i++) {
+          mergeArr[i] = quickArr[i] = selectionArr[i] = arr_size - i;
+       }
+//
+//
+//       tablou random sortat
+      // for (int i = 0; i < arr_size; i++) {
+      //     mergeArr[i] = quickArr[i] = selectionArr[i] = rand();
+      //  }
+//
+//        tablou fara ultim element sortat
+        //for (int i = 0; i < arr_size; i++) {
+        //  mergeArr[i] = quickArr[i] =selectionArr[i]= i + 1;
+        //}
+        //mergeArr[arr_size - 1] = quickArr[arr_size - 1]= selectionArr[arr_size-1] = 0;
+//
+//
+//
+        //tablou cu un element din mijloc nesortat
+       // for (int i = 0; i < arr_size / 2; i++) {
+         //   mergeArr[i] = quickArr[i] = selectionArr[i] = i + 1;
+        //}
+        //mergeArr[arr_size / 2] = quickArr[arr_size / 2]=selectionArr[arr_size/2] = 0;
+
+  //      for (int i = arr_size / 2 + 1; i < arr_size; i++) {
+    //        mergeArr[i] = quickArr[i] = selectionArr[i] = i;
+      //  }
+
+
+
+ if (arr_size <= 30)
+    {
+        cout << "Given array:\n";
+        printArray(mergeArr, arr_size);
+        cout << endl;
+    }
+
+    steady_clock::time_point begin = steady_clock::now();
+    mergeSort(mergeArr, 0, arr_size - 1);
+    steady_clock::time_point end = steady_clock::now();
+
+
+    cout << "\n\nMergeSort:\n";
+    if (arr_size >= 1000000)
+    {
+        cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+    }
+    cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+    cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+
+    if (arr_size <= 30)
+    {
+        cout << "\nTabelul sortat (MergeSort):\n";
+        printArray(mergeArr, arr_size);
+    }
+
+
+    begin = steady_clock::now();
+    quickSort(quickArr, 0, arr_size - 1);
+    end = steady_clock::now();
+
+
+    cout << "\n\n\nQuickSort:\n";
+    if (arr_size >= 1000000)
+    {
+        cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+    }
+    cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+    cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+    if (arr_size <= 30)
+    {
+        cout << "\nTabelul sortat (QuickSort):\n";
+        printArray(quickArr, arr_size);
+    }
+
+
+
+    begin = steady_clock::now();
+   // int N = sizeof(selectionArr)/sizeof(selectionArr[0]);
+    selectionSort(selectionArr, arr_size);
+    end = steady_clock::now();
+
+    cout << "\n\n\nSelectionSort:\n";
+    if (arr_size >= 1000000)
+    {
+        cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+    }
+    cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+    cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+    if (arr_size <= 30)
+    {
+        cout << "\nTabelul sortat (SelectionSort):\n";
+        printArray(selectionArr, arr_size);
+    }
+
+    cout << endl
+         << endl;
+
+    delete[] mergeArr, quickArr, selectionArr;
+
+    return 0;
+}
