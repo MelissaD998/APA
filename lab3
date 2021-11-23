@@ -1,0 +1,250 @@
+#include <iostream>
+#include <limits>
+#include <time.h>
+#include <ctime>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+
+void prim(int** array, int n)
+{
+	bool visited[1000] = {};
+	int cost = 0;
+
+	for (int i = 0; i < n; i++)
+	{
+		visited[i] = false; 
+	}
+	
+	visited[0] = true; 
+
+/*	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			cout << array[i][j] << " ";
+		}
+		cout << endl;
+	}*/
+
+	int nrVarfuri = 0;
+	while (nrVarfuri < n - 1)
+
+	{
+		int min = INT_MAX;
+		
+		int row = 0;
+		int column = 0;
+
+		for (int i = 0; i < n; i++)
+		{
+			if (visited[i] == true) 
+			{
+				for (int j = 0; j < n; j++) 
+				{
+					if (min > array[i][j])
+					{
+						if (visited[j] == false && array[i][j] != 0)
+						{
+							min = array[i][j];
+							row = i;
+							column = j;
+						}
+					}
+				}
+			}
+		}
+		if (n <= 10)
+		{
+			cout << "(" << row << ")---" << "(" << column << ") - ponderea: " << array[row][column] << endl;
+
+		}
+		cost += min;
+		visited[column] = true;
+		nrVarfuri++;
+	}
+	cout << "Costul: " << cost;
+}
+
+int* parent;
+int find(int i)
+{
+	while (parent[i] != i)
+		i = parent[i];
+	return i;
+}
+
+void union1(int i, int j)
+{
+	int a = find(i);
+	int b = find(j);
+	parent[a] = b;
+}
+
+void kruskal(int** graph, int n)
+{
+	int mincost = 0; // Cost of min MST.
+	parent = new int[n];
+	for (int i = 0; i < n; i++)
+		parent[i] = i;
+
+	int edge_count = 0; 
+	cout << "\nMuchia \tPonderea\n";
+	while (edge_count < n - 1)
+	{
+		int min = INT_MAX, a = -1, b = -1;
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				if (find(i) != find(j))
+				{
+					if (graph[i][j] < min)
+					{
+						if (min != 0)
+						{
+							min = graph[i][j];
+							a = i;
+							b = j;
+						}
+					}
+				}
+			}
+		}
+
+		union1(a, b);
+		edge_count++;
+		if (n <= 10)
+
+		{
+			cout << a << " -> " << b << "\t" << min << endl;
+		}
+		mincost += min;
+	}
+
+	cout << "\nCostul minim = " << mincost << endl
+		<< endl;
+}
+
+int main()
+{
+	int** graph = new int* [1001];
+	for (int i = 0; i < 1001; i++)
+	{
+		graph[i] = new int[1001];
+	}
+
+	int n;
+
+	cout << "Numarul de varfuri: ";
+	cin >> n;
+
+	srand(time(NULL));
+
+
+	/*for (int i = 0; i < n; i++)//graf rar
+	{
+		for (int j = 0; j < n; j++)
+		{
+			graph[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i == j)
+			{
+				graph[i][j] = 0;
+				graph[i][i + 1] = (rand() % 100) + 1;
+				graph[i + 1][i] = graph[i][i + 1];
+				continue;
+			}
+		}
+	}*/
+
+
+
+		for (int i = 0; i < n; i++)//graf dens
+		{
+			for (int j = 0; j < n; j++)
+			{
+				graph[i][j] = (rand() % 100) + 1;
+				graph[j][i] = graph[i][j];
+			}
+		}
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				if (i == j)
+				{
+					graph[i][j] = 0;
+					graph[i][i + 1] = (rand() % 100) + 1;
+					graph[i + 1][i] = graph[i][i + 1];
+					continue;
+				}
+			}
+		}
+
+	if (n <= 10)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++) {
+				cout << graph[i][j] << "  ";
+			}
+			cout << endl;
+
+		}
+	}
+for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (graph[i][j] == 0) {
+				graph[i][j] = INT_MAX;
+			}
+		}
+	}
+
+
+	steady_clock::time_point begin = steady_clock::now();
+	prim(graph, n);
+	steady_clock::time_point end = steady_clock::now();
+
+
+	cout << "\n\nPrim:\n";
+	if (n >= 1000000)
+	{
+		cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+	}
+	cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+	cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+
+
+
+	begin = steady_clock::now();
+	kruskal(graph, n);
+	end = steady_clock::now();
+
+
+	cout << "\n\nKruskal:\n";
+	if (n >= 1000000)
+	{
+		cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+	}
+	cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+	cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+
+
+	/*/for (int i = 0; i < 10000; i++)
+	{
+		delete[] graph[i];
+	}*/
+	delete[] graph;
+
+	return 0;
+}
