@@ -1,0 +1,245 @@
+
+#include <iostream>
+#include <limits>
+#include <time.h>
+#include <ctime>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+ #define INF 99999
+
+int minDistance(int dist[], bool sptSet[], int n)
+{    // Initialize min value
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < n; v++)
+        if (sptSet[v] == false && dist[v] <= min)
+            min = dist[v], min_index = v;
+
+    return min_index;
+}
+
+void printSolution(int dist[],int n)
+{
+    if (n <= 10){
+    cout <<"Vertex \t Distance from Source" << endl;
+
+    for (int i = 0; i < n; i++)
+        cout  << i << " \t\t"<<dist[i]<< endl;
+         }
+}
+
+
+void dijkstra(int **graph, int src, int n)
+{
+    int dist[n];
+
+    bool sptSet[n];
+
+        for (int i = 0; i < n; i++)
+        dist[i] = INT_MAX, sptSet[i] = false;
+
+    dist[src] = 0;
+    // Find shortest path for all vertices
+        for (int count = 0; count < n - 1; count++) {
+        int u = minDistance(dist, sptSet, n);
+
+        sptSet[u] = true;
+        for (int v = 0; v < n; v++)
+
+            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX
+                && dist[u] + graph[u][v] < dist[v])
+                dist[v] = dist[u] + graph[u][v];
+    }
+
+printSolution(dist, n);
+
+}
+
+
+
+void floyd_warshall( int ** graph, int n) {
+  int ** dist = new int * [n];
+  for (int i = 0; i < n; ++i) {
+    dist[i] = new int[n];
+  }
+
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+      dist[i][j] = graph[i][j];
+  //Cautam toate perechile de drum minim incercand toate drumurile
+  for (int k = 0; k < n; k++)
+
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)   /
+      {
+        if (dist[i][j] > (dist[i][k] + dist[k][j]) &&
+          (dist[k][j] != INF &&
+            dist[i][k] != INF))   //facem skip daca k nu poate fi reached de la i sau daca j unreach de la l
+          dist[i][j] = dist[i][k] + dist[k][j];
+      }
+    }
+  }
+  //Afisarea
+  if (n <= 10) {
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j)
+        cout << i << " to " << j << " distance is " << dist[i][j] << "\n";
+      cout << "=================================\n";
+    }
+  }
+  for (int i = 0; i < n; ++i) {
+    delete[] dist[i];
+  }
+  //Eliberam array-ul de pointeri
+  delete[] dist;
+}
+
+
+
+
+
+int main()
+{
+	int** graph = new int* [1001];
+	for (int i = 0; i < 1001; i++)
+	{
+		graph[i] = new int[1001];
+	}
+
+
+    int n;
+	cout << "Numarul de varfuri: ";
+	cin >> n;
+
+	srand(time(NULL));
+
+	for (int i = 0; i < n; i++)//graf rar
+	{
+		for (int j = 0; j < n; j++)
+		{
+			graph[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i == j)
+			{
+				graph[i][j] = 0;
+				graph[i][i + 1] = (rand() % 100) + 1;
+				graph[i + 1][i] = graph[i][i + 1];
+				continue;
+			}
+		}
+	}
+
+
+
+
+/*
+		for (int i = 0; i < n; i++)//graf dens
+		{
+			for (int j = 0; j < n; j++)
+			{
+				graph[i][j] = (rand() % 100) + 1;
+				graph[j][i] = graph[i][j];
+			}
+		}
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				if (i == j)
+				{
+					graph[i][j] = 0;
+					graph[i][i + 1] = (rand() % 100) + 1;
+					graph[i + 1][i] = graph[i][i + 1];
+					continue;
+				}
+			}
+		}*/
+
+	if (n <= 10)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++) {
+				cout << graph[i][j] << "  ";
+			}
+			cout << endl;
+
+		}
+	}
+/*
+for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (graph[i][j] == 0) {
+				graph[i][j] = INT_MAX;
+			}
+		}
+	}
+*/
+
+	steady_clock::time_point begin = steady_clock::now();
+	dijkstra(graph,0,  n);
+	steady_clock::time_point end = steady_clock::now();
+
+    cout << "\n\nDijkstra:\n";
+	if (n >= n)
+	{
+		cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+	}
+	cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+	cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+
+
+            begin = steady_clock::now();
+            for (int i = 0; i < n; i++) {// aici se creaza posibilitatea pentru Dijkstra de a merge din toate nodurile in toate nodurile
+
+           dijkstra(graph, i, n);
+           }
+
+           end = steady_clock::now();
+
+
+            cout << "\n\nDijkstra in toate nodurile:\n";
+	if (n >= n)
+	{
+		cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+	}
+	cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+	cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+
+ for (int i = 0; i < n; i++) {// forul care ne permite sa lucreze algoritmul lui floyd
+            for (int j = 0; j < n; j++) {
+                if (graph[i][j] == 0) {
+                    graph[i][j] = INF;
+                }
+            }
+        }
+	begin = steady_clock::now();
+    floyd_warshall(graph, n);
+	end = steady_clock::now();
+
+	cout << "\n\nFloyd:\n";
+	if (n >= n)
+	{
+		cout << "Timpul de executie = " << duration_cast<seconds>(end - begin).count() << " secunde" << endl;
+	}
+	cout << "Timpul de executie = " << duration_cast<milliseconds>(end - begin).count() << " milisecunde" << endl;
+	cout << "Timpul de executie = " << duration_cast<microseconds>(end - begin).count() << " microsecunde" << endl;
+
+	for (int i = 0; i < n; i++)
+	{
+		delete[] graph[i];
+	}
+	delete[] graph;
+
+	return 0;
+}
